@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Globalization;
+using System.IO;
 
 namespace FirstBankOfSuncoastv2
 {
@@ -8,13 +12,7 @@ namespace FirstBankOfSuncoastv2
         private int Withdraw { get; set; }
         public int Savings { get; set; }
         public int Checking { get; set; }
-
-        var checkingSavings = new List<Transaction>
-
-
-
     }
-
     class Program
     {
         static void Menu()
@@ -39,17 +37,10 @@ namespace FirstBankOfSuncoastv2
                 Console.WriteLine("QUIT - Quit the program!");
                 Console.WriteLine();
                 Console.Write("Choice: ");
-                var choice = Console.ReadLine().ToUpper().Trim();
-                if (choice == "Quit")
+                var response = Console.ReadLine().ToUpper().Trim();
+                if (response == "Quit")
                 {
-                    return
-                  }
-
-                if choice == ("VIEW")
-                {
-                    Console.WriteLine(Transactions);
-
-
+                    hasQuitTheApplication = true;
                 }
             }
             static void Main(string[] args)
@@ -57,60 +48,59 @@ namespace FirstBankOfSuncoastv2
                 var savingsBalance = 0;
                 var checkingBalance = 0;
                 Menu()
+                var choice = response = Console.ReadLine().ToUpper().Trim();
+                if (choice == "TRANSACTIONS")
                 {
-                    quit = true;
-                    Console.WriteLine("-----Good bye----");
+                    Console.WriteLine
                 }
-                else
+                var checkingTransactions = new List<Transaction>();
+                if (File.Exists("checkingtransactions.csv"))
                 {
-                    var checkingTransactions = new List<Transaction>();
-                    if (File.Exists("checkingtransactions.csv"))
+                    var checkingFileReader = new StreamReader("checkingtransactions.csv");
+                    var checkingCsvReader = new CsvReader(checkingFileReader, CultureInfo.InvariantCulture);
+                    // checkingCsvReader.Configuration.HasHeaderRecord = false;
+                    checkingTransactions = checkingCsvReader.GetRecords<Transaction>().ToList();
+                }
+                foreach (var check in checkingTransactions)
+                {
+                    if (check.TransactionType == "Deposit")
                     {
-                        var checkingFileReader = new StreamReader("checkingtransactions.csv");
-                        var checkingCsvReader = new CsvReader(checkingFileReader, CultureInfo.InvariantCulture);
-                        // checkingCsvReader.Configuration.HasHeaderRecord = false;
-                        checkingTransactions = checkingCsvReader.GetRecords<Transaction>().ToList();
+                        checkingAccountBalance += check.ChangeOfBalance;
                     }
-                    foreach (var check in checkingTransactions)
+                    else
                     {
-                        if (check.TransactionType == "Deposit")
-                        {
-                            checkingAccountBalance += check.ChangeOfBalance;
-                        }
-                        else
-                        {
-                            checkingAccountBalance -= check.ChangeOfBalance;
-                        }
+                        checkingAccountBalance -= check.ChangeOfBalance;
                     }
-                    var savingsTransactions = new List<Transaction>();
-                    if (File.Exists("savingstransactions.csv"))
+                }
+                var savingsTransactions = new List<Transaction>();
+                if (File.Exists("savingstransactions.csv"))
+                {
+                    var savingsFileReader = new StreamReader("savingstransactions.csv");
+                    var savingsCsvReader = new CsvReader(savingsFileReader, CultureInfo.InvariantCulture);
+                    // savingsCsvReader.Configuration.HasHeaderRecord = false;
+                    savingsTransactions = savingsCsvReader.GetRecords<Transaction>().ToList();
+                }
+                foreach (var save in savingsTransactions)
+                {
+                    if (save.TransactionType == "Deposit")
                     {
-                        var savingsFileReader = new StreamReader("savingstransactions.csv");
-                        var savingsCsvReader = new CsvReader(savingsFileReader, CultureInfo.InvariantCulture);
-                        // savingsCsvReader.Configuration.HasHeaderRecord = false;
-                        savingsTransactions = savingsCsvReader.GetRecords<Transaction>().ToList();
+                        savingsAccountBalance += save.ChangeOfBalance;
                     }
-                    foreach (var save in savingsTransactions)
+                    else
                     {
-                        if (save.TransactionType == "Deposit")
-                        {
-                            savingsAccountBalance += save.ChangeOfBalance;
-                        }
-                        else
-                        {
-                            savingsAccountBalance -= save.ChangeOfBalance;
-                        }
+                        savingsAccountBalance -= save.ChangeOfBalance;
                     }
+                }
 
-                }
-                var checkingFileWriter = new StreamWriter("checkingtransactions.csv");
-                var checkingCsvWriter = new CsvWriter(checkingFileWriter, CultureInfo.InvariantCulture);
-                checkingCsvWriter.WriteRecords(checkingTransactions);
-                checkingFileWriter.Close();
-                var savingsFileWriter = new StreamWriter("savingstransactions.csv"); var savingsCsvWriter = new CsvWriter(savingsFileWriter, CultureInfo.InvariantCulture);
-                savingsCsvWriter.WriteRecords(savingsTransactions);
-                savingsFileWriter.Close();
             }
+            var checkingFileWriter = new StreamWriter("checkingtransactions.csv");
+            var checkingCsvWriter = new CsvWriter(checkingFileWriter, CultureInfo.InvariantCulture);
+            checkingCsvWriter.WriteRecords(checkingTransactions);
+            checkingFileWriter.Close();
+            var savingsFileWriter = new StreamWriter("savingstransactions.csv"); var savingsCsvWriter = new CsvWriter(savingsFileWriter, CultureInfo.InvariantCulture);
+            savingsCsvWriter.WriteRecords(savingsTransactions);
+            savingsFileWriter.Close();
         }
     }
+}
 }
