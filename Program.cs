@@ -8,21 +8,67 @@ namespace FirstBankOfSuncoastv2
 {
     class Transaction
     {
-        private int Deposit { get; set; }
-        private int Withdraw { get; set; }
-        public int Savings { get; set; }
-        public int Checking { get; set; }
+        public string TransactionType { get; set; }
+        public int ChangeOfBalance { get; set; }
+        public string TransactionHistory()
+        {
+            var transactionHistory = $"{TransactionType} for {ChangeOfBalance}";
+            return transactionHistory;
+        }
     }
     class Program
     {
-        static void Menu()
+        static void Main(string[] args)
         {
-            Console.Clear();
-            Console.WriteLine("Welcome to The First Bank of Suncoast");
+            var savingsAccountBalance = 0;
+            var checkingAccountBalance = 0;
+            // Create a list to to track transfers
+            var checkingTransactions = new List<Transaction>();
+            if (File.Exists("checkingtransactions.csv"))
+            {
+                var checkingFileReader = new StreamReader("checkingtransactions.csv");
+                var checkingCsvReader = new CsvReader(checkingFileReader, CultureInfo.InvariantCulture);
+                // checkingCsvReader.Configuration.HasHeaderRecord = false;
+                checkingTransactions = checkingCsvReader.GetRecords<Transaction>().ToList();
+            }
+            foreach (var check in checkingTransactions)
+            {
+                if (check.TransactionType == "Deposit")
+                {
+                    checkingAccountBalance += check.ChangeOfBalance;
+                }
+                else
+                {
+                    checkingAccountBalance -= check.ChangeOfBalance;
+                }
+            }
+            var savingsTransactions = new List<Transaction>();
+            if (File.Exists("savingstransactions.csv"))
+            {
+                var savingsFileReader = new StreamReader("savingstransactions.csv");
+                var savingsCsvReader = new csvReader(savingsFileReader, CultureInfo.InvariantCulture);
+                // savingsCsvReader.Configuration.HasHeaderRecord = false;
+                savingsTransactions = savingsCsvReader.GetRecords<Transaction>().ToList();
+            }
+            foreach (var save in savingsTransactions)
+            {
+                if (save.TransactionType == "Deposit")
+                {
+                    savingsAccountBalance += save.ChangeOfBalance;
+                }
+                else
+                {
+                    savingsAccountBalance -= save.ChangeOfBalance;
+                }
+            }
+            Console.WriteLine();
+            Console.WriteLine(" - - - - - - ---------------------------------- - - - - - - -");
+            Console.WriteLine(" - - - - - -Welcome to The First Bank of Suncoast- - - - - - - -");
+            Console.WriteLine(" - - - - - - ---------------------------------- - - - - - - -");
+            Console.WriteLine();
             var hasQuitTheApplication = false;
             while (hasQuitTheApplication == false)
             {
-                // Show them a menu of options they can do
                 Console.WriteLine();
                 Console.WriteLine("Select an option from the Menu below:");
                 Console.WriteLine("-------------------------------------");
@@ -37,70 +83,131 @@ namespace FirstBankOfSuncoastv2
                 Console.WriteLine("QUIT - Quit the program!");
                 Console.WriteLine();
                 Console.Write("Choice: ");
-                var response = Console.ReadLine().ToUpper().Trim();
-                if (response == "Quit")
+                var choice = Console.ReadLine().ToUpper();
+                if (choice == "QUIT")
                 {
                     hasQuitTheApplication = true;
                 }
-            }
-            static void Main(string[] args)
-            {
-                var savingsBalance = 0;
-                var checkingBalance = 0;
-                Menu()
-                var choice = response = Console.ReadLine().ToUpper().Trim();
-                if (choice == "TRANSACTIONS")
+                if (choice == "DEPOSIT")
                 {
-                    Console.WriteLine
-                }
-                var checkingTransactions = new List<Transaction>();
-                if (File.Exists("checkingtransactions.csv"))
-                {
-                    var checkingFileReader = new StreamReader("checkingtransactions.csv");
-                    var checkingCsvReader = new CsvReader(checkingFileReader, CultureInfo.InvariantCulture);
-                    // checkingCsvReader.Configuration.HasHeaderRecord = false;
-                    checkingTransactions = checkingCsvReader.GetRecords<Transaction>().ToList();
-                }
-                foreach (var check in checkingTransactions)
-                {
-                    if (check.TransactionType == "Deposit")
+                    Console.WriteLine("Please select which account to deposit into, CHECKING or SAVINGS");
+                    var answer = Console.ReadLine().ToUpper();
+                    if (answer == "CHECKING")
                     {
-                        checkingAccountBalance += check.ChangeOfBalance;
+                        Console.WriteLine("How much would you like to deposit");
+                        var depositAmount = int.Parse(Console.ReadLine());
+                        var newTransaction = new Transaction
+                        {
+                            TransactionType = "Deposit",
+                            ChangeOfBalance = depositAmount
+                        }
+                        var newCheckingAccountBalance = checkingAccountBalance + newTransaction.ChangeOfBalance;
+                        checkingAccountBalance = newCheckingAccountBalance;
+                        Console.WriteLine(checkingAccountBalance)
+                        Add.Transaction => < List > checkingTransactions
                     }
-                    else
+                    if (answer == "SAVINGS")
                     {
-                        checkingAccountBalance -= check.ChangeOfBalance;
-                    }
-                }
-                var savingsTransactions = new List<Transaction>();
-                if (File.Exists("savingstransactions.csv"))
-                {
-                    var savingsFileReader = new StreamReader("savingstransactions.csv");
-                    var savingsCsvReader = new CsvReader(savingsFileReader, CultureInfo.InvariantCulture);
-                    // savingsCsvReader.Configuration.HasHeaderRecord = false;
-                    savingsTransactions = savingsCsvReader.GetRecords<Transaction>().ToList();
-                }
-                foreach (var save in savingsTransactions)
-                {
-                    if (save.TransactionType == "Deposit")
-                    {
-                        savingsAccountBalance += save.ChangeOfBalance;
-                    }
-                    else
-                    {
-                        savingsAccountBalance -= save.ChangeOfBalance;
+                        Console.WriteLine("How much would you like to deposit?");
+                        var depositAmount = int.Parse(Console.ReadLine());
+                        var newTransaction = new Transaction
+                        {
+                            TransactionType = "Deposit",
+                            ChangeOfBalance = depositAmount
+                        };
+                        var newSavingsAccountBalance = savingsAccountBalance + newTransaction.ChangeOfBalance;
+                        savingsAccountBalance = newSavingsAccountBalance;
+                        Console.WriteLine(savingsAccountBalance);
+                        savingsTransactions.Add(newTransaction);
                     }
                 }
+                if (choice == "WITHDRAW")
+                {
+                    Console.WriteLine("Please select which account to withdraw from, CHECKING or SAVINGS");
+                    var answer = Console.ReadLine().ToUpper();
+                    if (answer == "CHECKING")
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("How much would you like to withdraw?");
+                        var withdrawAmount = int.Parse(Console.ReadLine());
+                        var newTransaction = new Transaction
+                        {
+                            TransactionType = "Withdraw",
+                            ChangeOfBalance = withdrawAmount
+                        }
 
+                        if (withdrawAmount < checkingAccountBalance)
+                        {
+                            var newCheckingAccountBalance = checkingAccountBalance - newTransaction.ChangeOfBalance;
+                            checkingAccountBalance = newCheckingAccountBalance;
+                            Console.WriteLine(checkingAccountBalance);
+                            checkingTransactions.Add(newTransaction);
+                        }
+                        else
+                        {
+
+                            Console.WriteLine("Insufficient Funds.");
+
+                        }
+                    }
+                    if (answer == "SAVINGS")
+                    {
+                        Console.WriteLine("How much would you like to withdraw?");
+                        var withdrawAmount = int.Parse(Console.ReadLine());
+                        var newTransaction = new Transaction
+                        {
+                            TransactionType = "Withdraw",
+                            changeOfBalance = WithdrawAmount
+                        }
+                        if (userInput < savingsAccountBalance)
+                        {
+                            var newSavingsAccountBalance = savingsAccountBalance - newTransaction.ChangeOfBalance;
+                            savingsAccountBalance = newSavingsAccountBalance;
+                            Console.WriteLine(savingsAccountBalance);
+                            savingsTransactions.Add(newTransaction);
+                            Console.WriteLine("The funds have been withdrawn from your Savings account");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Insufficient Funds.");
+                        }
+                    }
+
+                    if (choice == "BALANCE")
+                    {
+                        Console.WriteLine($"The balance of your checking account is { checkingAccountBalance } and your savings account balance is { savingsAccountBalance }");
+                        var answer = Console.ReadLine().ToUpper();
+                    }
+                    if (choice == "TRANSACTIONS")
+                    {
+                        Console.WriteLine("View transaction history of CHECKING or SAVINGS?");
+                        var viewCheckingOrSavingsTransaction = Console.ReadLine().ToUpper();
+                        if (answer == "CHECKING")
+                        {
+                            foreach (var transaction in checkingTransactions)
+                            {
+                                Console.WriteLine(transaction.TransactionHistory());
+                            }
+                        }
+                        if (answer == "SAVINGS")
+                        {
+                            foreach (var transaction in savingsTransactions)
+                            {
+                                Console.WriteLine(transaction.TransactionHistory());
+                            }
+                        }
+                    }
+                    Console.WriteLine("Thank you!");
+                }
+                var checkingFileWriter = new StreamWriter("checkingtransactions.csv");
+                var checkingCsvWriter = new CsvWriter(checkingFileWriter, CultureInfo.InvariantCulture);
+                checkingCsvWriter.WriteRecords(checkingTransactions);
+                checkingFileWriter.Close();
+                var savingsFileWriter = new StreamWriter("savingstransactions.csv");
+                var savingsCsvWriter = new CsvWriter(savingsFileWriter, CultureInfo.InvariantCulture);
+                savingsCsvWriter.WriteRecords(savingsTransactions);
+                savingsFileWriter.Close();
             }
-            var checkingFileWriter = new StreamWriter("checkingtransactions.csv");
-            var checkingCsvWriter = new CsvWriter(checkingFileWriter, CultureInfo.InvariantCulture);
-            checkingCsvWriter.WriteRecords(checkingTransactions);
-            checkingFileWriter.Close();
-            var savingsFileWriter = new StreamWriter("savingstransactions.csv"); var savingsCsvWriter = new CsvWriter(savingsFileWriter, CultureInfo.InvariantCulture);
-            savingsCsvWriter.WriteRecords(savingsTransactions);
-            savingsFileWriter.Close();
         }
     }
-}
 }
